@@ -27,25 +27,31 @@ async function getMetrics() {
         const cpu = {
             count: cpuData.cores,
             // Note: si.currentLoad().currentLoad is often more reliable than si.cpu().speed
-            usagePercent: parseFloat(currentLoadData.currentLoad.toFixed(2)), // Overall load %
+            usagePercent: parseFloat((currentLoadData.currentLoad ?? 0).toFixed(2)), // Overall load % - Default to 0 if null/undefined
             // Ensure avgLoad is an array before mapping
             loadAverage: Array.isArray(currentLoadData.avgLoad)
-                ? currentLoadData.avgLoad.map(load => parseFloat(load.toFixed(2)))
+                ? currentLoadData.avgLoad.map(load => parseFloat((load ?? 0).toFixed(2))) // Default inner values to 0
                 : [0, 0, 0] // Default if not an array
         };
 
         // --- Process Memory ---
+        // Ensure memData values are numbers before calculation
+        const totalMem = memData.total ?? 0;
+        const activeMem = memData.active ?? 0;
         const memory = {
-            totalBytes: memData.total,
-            usedBytes: memData.active, // 'active' is often a better measure of used RAM than 'used'
-            usagePercent: parseFloat(((memData.active / memData.total) * 100).toFixed(2))
+            totalBytes: totalMem,
+            usedBytes: activeMem, // 'active' is often a better measure of used RAM than 'used'
+            usagePercent: totalMem > 0 ? parseFloat(((activeMem / totalMem) * 100).toFixed(2)) : 0
         };
 
         // --- Process Swap ---
+        // Ensure swap values are numbers before calculation
+        const totalSwap = memData.swaptotal ?? 0;
+        const usedSwap = memData.swapused ?? 0;
         const swap = {
-            totalBytes: memData.swaptotal,
-            usedBytes: memData.swapused,
-            usagePercent: memData.swaptotal > 0 ? parseFloat(((memData.swapused / memData.swaptotal) * 100).toFixed(2)) : 0
+            totalBytes: totalSwap,
+            usedBytes: usedSwap,
+            usagePercent: totalSwap > 0 ? parseFloat(((usedSwap / totalSwap) * 100).toFixed(2)) : 0
         };
 
         // --- Process Disk (find root '/') ---
@@ -54,7 +60,7 @@ async function getMetrics() {
             path: rootDisk.mount,
             totalBytes: rootDisk.size,
             usedBytes: rootDisk.used,
-            usagePercent: parseFloat(rootDisk.use.toFixed(2))
+            usagePercent: parseFloat((rootDisk.use ?? 0).toFixed(2)) // Default to 0 if null/undefined
         } : { // Fallback if '/' not found
             path: 'N/A',
             totalBytes: 0,
@@ -67,9 +73,9 @@ async function getMetrics() {
         const netStats = networkStatsData.find(iface => iface.iface === defaultInterface);
         const network = netStats ? {
             interface: netStats.iface,
-            // Calculate speed (rx_sec/tx_sec are bytes per second)
-            rxSpeedBps: parseFloat(netStats.rx_sec.toFixed(0)),
-            txSpeedBps: parseFloat(netStats.tx_sec.toFixed(0))
+            // Calculate speed (rx_sec/tx_sec are bytes per second) - Default to 0 if null/undefined
+            rxSpeedBps: parseFloat((netStats.rx_sec ?? 0).toFixed(0)),
+            txSpeedBps: parseFloat((netStats.tx_sec ?? 0).toFixed(0))
         } : { // Fallback if default interface stats not found
             interface: defaultInterface || 'N/A',
             rxSpeedBps: 0,
