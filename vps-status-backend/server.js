@@ -2,20 +2,43 @@ const express = require('express');
 const cors = require('cors'); // Import cors
 const ping = require('ping');
 const maxmind = require('maxmind');
-// const fetch = require('node-fetch'); // Keep for potential GeoIP API fallback
+const fetch = require('node-fetch'); // Import node-fetch
 
 const app = express();
 app.use(cors()); // Enable CORS for all origins
 const port = 3000; // Or any port you prefer
 
 // --- Configuration ---
-// Replace with your actual VPS list
+// Replace with your actual VPS list, including agent URLs
 const servers = [
-  { name: "VPS 1 (Example)", ip: "8.8.8.8" }, // Google DNS (for testing)
-  { name: "VPS 2 (Example)", ip: "1.1.1.1" }, // Cloudflare DNS (for testing)
-  { name: "Offline Example", ip: "192.0.2.1" }, // Reserved non-routable IP
-  // Add your actual servers here: { name: "My Web Server", ip: "YOUR_VPS_IP_1" },
+  // Example structure - UPDATE WITH YOUR ACTUAL DATA
+  {
+    name: "VPS 1 (Example)",
+    ip: "8.8.8.8", // Google DNS (for testing ping/geoip)
+    agentUrl: null // No agent for Google DNS
+  },
+  {
+    name: "VPS 2 (Example with Agent)",
+    ip: "YOUR_VPS_IP_1", // Replace with an IP where your agent IS running
+    agentUrl: "http://YOUR_VPS_IP_1:9101/metrics" // Replace with actual agent URL
+  },
+   {
+    name: "VPS 3 (Example with Agent)",
+    ip: "YOUR_VPS_IP_2", // Replace with another IP where your agent IS running
+    agentUrl: "http://YOUR_VPS_IP_2:9101/metrics" // Replace with actual agent URL
+  },
+  {
+    name: "Offline Example",
+    ip: "192.0.2.1", // Reserved non-routable IP
+    agentUrl: null
+  },
+  // Add all your actual servers here following the structure:
+  // { name: "My Web Server", ip: "...", agentUrl: "http://...:9101/metrics" },
+  // { name: "My DB Server", ip: "...", agentUrl: null }, // If no agent on this one
 ];
+
+// Agent fetch settings
+const AGENT_TIMEOUT_MS = 5000; // 5 seconds timeout for agent requests
 
 // --- GeoIP Setup ---
 let geoIpLookup = null; // Initialize as null
@@ -58,6 +81,7 @@ async function updateVpsStatus() {
   const statusPromises = servers.map(async (server) => {
     let isOnline = false;
     let location = null;
+    let metrics = null; // Initialize metrics as null
 
     // 1. Check Online Status (Ping)
     try {
@@ -71,7 +95,28 @@ async function updateVpsStatus() {
       isOnline = false;
     }
 
-    // 2. Get Location (GeoIP)
+    // 2. Get Metrics from Agent (if online and agent URL is configured)
+    if (isOnline && server.agentUrl) {
+      try {
+        const agentRes = await fetch(server.agentUrl, { timeout: AGENT_TIMEOUT_MS });
+        if (agentRes.ok) { // Check if status code is 2xx
+          metrics = await agentRes.json();
+        } else {
+          console.error(`Agent request failed for ${server.name} (${server.ip}): Status ${agentRes.status}`);
+          metrics = { error: `Agent request failed: Status ${agentRes.status}` };
+        }
+      } catch (fetchError) {
+        console.error(`Agent fetch error for ${server.name} (${server.ip}):`, fetchError.message);
+        metrics = { error: `Agent fetch error: ${fetchError.message}` };
+      }
+    } else if (isOnline && !server.agentUrl) {
+        metrics = { info: "Agent not configured for this server." };
+    } else {
+        // Server is offline, metrics remain null
+    }
+
+
+    // 3. Get Location (GeoIP) - Independent of agent status
     if (geoIpLookup) {
         try {
             const geoData = geoIpLookup(server.ip);
@@ -104,6 +149,7 @@ async function updateVpsStatus() {
       ip: server.ip,
       isOnline: isOnline,
       location: location,
+      metrics: metrics, // Add metrics here
       lastCheck: new Date().toISOString(),
     };
   });
