@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  agent:
+    build:
+      context: . # Build context is the current directory
+    container_name: vps-agent-standalone # Unique name for standalone agent
+    ports:
+      - "9101:9101" # Map host port 9101 to container port 9101
+    restart: unless-stopped
+
+networks:
+  default:
+    driver: bridge

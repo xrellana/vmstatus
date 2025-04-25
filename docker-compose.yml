@@ -1,0 +1,27 @@
+version: '3.8' # Specify docker-compose version
+
+services:
+  agent:
+    build:
+      context: ./vps-metrics-agent # Path to the agent's Dockerfile directory
+    container_name: vps-agent
+    restart: unless-stopped
+    # No ports needed to be exposed externally for the agent usually
+
+  server:
+    build:
+      context: ./vps-status-backend # Path to the server's Dockerfile directory
+    container_name: vps-backend
+    ports:
+      - "3000:3000" # Map host port 3000 to container port 3000
+    restart: unless-stopped
+    depends_on:
+      - agent # Optional: Ensures agent starts before server, though server logic handles agent unavailability
+    # Note: The server code needs to be updated to use the Docker service name
+    # (e.g., 'http://agent:9101/metrics') instead of IP addresses for agents
+    # running within the same Docker Compose network. This change is outside
+    # the scope of creating the docker-compose file itself.
+
+networks:
+  default:
+    driver: bridge

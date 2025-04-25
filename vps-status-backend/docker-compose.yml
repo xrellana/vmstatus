@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  server:
+    build:
+      context: . # Build context is the current directory
+    container_name: vps-backend-standalone # Unique name for standalone backend
+    ports:
+      - "3000:3000" # Map host port 3000 to container port 3000
+    restart: unless-stopped
+    # Note: This setup assumes the GeoLite2-City.mmdb file is present
+    # in the build context (vps-status-backend directory) when building.
+    # It also assumes agent URLs in server.js point to externally accessible
+    # agent instances (not other containers in this specific compose file).
+
+networks:
+  default:
+    driver: bridge
