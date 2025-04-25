@@ -63,6 +63,10 @@ const cpuUsage = computed(() => {
     return isMetricsAvailable.value ? props.vps.metrics.cpu?.usagePercent?.toFixed(1) ?? 'N/A' : 'N/A';
 });
 
+const cpuCores = computed(() => {
+    return isMetricsAvailable.value ? props.vps.metrics.cpu?.count ?? 'N/A' : 'N/A';
+});
+
 const ramUsagePercent = computed(() => {
     return isMetricsAvailable.value ? props.vps.metrics.memory?.usagePercent?.toFixed(1) ?? 'N/A' : 'N/A';
 });
@@ -154,7 +158,7 @@ const getProgressBarClass = (percent) => {
     <div v-if="isMetricsAvailable" class="space-y-2 text-sm text-gray-700 dark:text-gray-300 flex-grow">
       <!-- CPU -->
       <div>
-        <span class="font-medium">CPU:</span> {{ cpuUsage }}%
+        <span class="font-medium">CPU ({{ cpuCores }} {{ cpuCores === 1 ? 'Core' : 'Cores' }}):</span> {{ cpuUsage }}%
         <div class="w-full bg-gray-200 rounded-full h-1.5 dark:bg-gray-700 mt-1">
           <div class="h-1.5 rounded-full" :class="getProgressBarClass(cpuUsage)" :style="{ width: cpuUsage + '%' }"></div>
         </div>
