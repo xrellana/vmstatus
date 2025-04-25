@@ -3,39 +3,30 @@ const cors = require('cors'); // Import cors
 const ping = require('ping');
 const maxmind = require('maxmind');
 const fetch = require('node-fetch'); // Import node-fetch
+const fs = require('fs'); // Import fs to read config file
 
 const app = express();
 app.use(cors()); // Enable CORS for all origins
 const port = 3000; // Or any port you prefer
 
 // --- Configuration ---
-// Replace with your actual VPS list, including agent URLs
-const servers = [
-  // Example structure - UPDATE WITH YOUR ACTUAL DATA
-  {
-    name: "VPS 1 (Example)",
-    ip: "8.8.8.8", // Google DNS (for testing ping/geoip)
-    agentUrl: null // No agent for Google DNS
-  },
-  {
-    name: "VPS 2 (Example with Agent)",
-    ip: "172.17.0.1", // Replace with an IP where your agent IS running
-    agentUrl: "http://172.17.0.1:9101/metrics" // Replace with actual agent URL
-  },
-   {
-    name: "VPS 3 (Example with Agent)",
-    ip: "YOUR_VPS_IP_2", // Replace with another IP where your agent IS running
-    agentUrl: "http://YOUR_VPS_IP_2:9101/metrics" // Replace with actual agent URL
-  },
-  {
-    name: "Offline Example",
-    ip: "192.0.2.1", // Reserved non-routable IP
-    agentUrl: null
-  },
-  // Add all your actual servers here following the structure:
-  // { name: "My Web Server", ip: "...", agentUrl: "http://...:9101/metrics" },
-  // { name: "My DB Server", ip: "...", agentUrl: null }, // If no agent on this one
-];
+let servers = []; // Initialize servers array
+const configPath = './config.json';
+
+try {
+  const configFileContent = fs.readFileSync(configPath, 'utf8');
+  const config = JSON.parse(configFileContent);
+  if (config && Array.isArray(config.servers)) {
+    servers = config.servers;
+    console.log(`Loaded ${servers.length} servers from ${configPath}`);
+  } else {
+    console.error(`Error: 'servers' array not found or invalid in ${configPath}`);
+    // Optionally exit or use a default empty list
+  }
+} catch (error) {
+  console.error(`Error reading or parsing config file ${configPath}:`, error.message);
+  // Optionally exit or use a default empty list
+}
 
 // Agent fetch settings
 const AGENT_TIMEOUT_MS = 5000; // 5 seconds timeout for agent requests

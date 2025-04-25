@@ -1,0 +1,24 @@
+{
+  "servers": [
+    {
+      "name": "VPS 1 (Example)",
+      "ip": "8.8.8.8",
+      "agentUrl": null
+    },
+    {
+      "name": "VPS 2 (Example with Agent)",
+      "ip": "172.17.0.1",
+      "agentUrl": "http://172.17.0.1:9101/metrics"
+    },
+    {
+      "name": "VPS 3 (Example with Agent)",
+      "ip": "YOUR_VPS_IP_2",
+      "agentUrl": "http://YOUR_VPS_IP_2:9101/metrics"
+    },
+    {
+      "name": "Offline Example",
+      "ip": "192.0.2.1",
+      "agentUrl": null
+    }
+  ]
+}

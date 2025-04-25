@@ -7,10 +7,14 @@ services:
     container_name: vps-backend-standalone # Unique name for standalone backend
     ports:
       - "3000:3000" # Map host port 3000 to container port 3000
+    volumes:
+      # Map the host config file to the container's config file location
+      # This allows changes on the host to be reflected without rebuilding
+      - ./config.json:/usr/src/app/config.json:ro # Mount as read-only for safety
     restart: unless-stopped
     # Note: This setup assumes the GeoLite2-City.mmdb file is present
     # in the build context (vps-status-backend directory) when building.
-    # It also assumes agent URLs in server.js point to externally accessible
+    # It also assumes agent URLs in config.json point to externally accessible
     # agent instances (not other containers in this specific compose file).
 
 networks:
