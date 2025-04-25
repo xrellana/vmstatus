@@ -28,7 +28,10 @@ async function getMetrics() {
             count: cpuData.cores,
             // Note: si.currentLoad().currentLoad is often more reliable than si.cpu().speed
             usagePercent: parseFloat(currentLoadData.currentLoad.toFixed(2)), // Overall load %
-            loadAverage: currentLoadData.avgLoad.map(load => parseFloat(load.toFixed(2))) // 1, 5, 15 min avg
+            // Ensure avgLoad is an array before mapping
+            loadAverage: Array.isArray(currentLoadData.avgLoad)
+                ? currentLoadData.avgLoad.map(load => parseFloat(load.toFixed(2)))
+                : [0, 0, 0] // Default if not an array
         };
 
         // --- Process Memory ---
