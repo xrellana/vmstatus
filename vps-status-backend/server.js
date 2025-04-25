@@ -19,8 +19,8 @@ const servers = [
   },
   {
     name: "VPS 2 (Example with Agent)",
-    ip: "YOUR_VPS_IP_1", // Replace with an IP where your agent IS running
-    agentUrl: "http://YOUR_VPS_IP_1:9101/metrics" // Replace with actual agent URL
+    ip: "172.17.0.1", // Replace with an IP where your agent IS running
+    agentUrl: "http://172.17.0.1:9101/metrics" // Replace with actual agent URL
   },
    {
     name: "VPS 3 (Example with Agent)",
