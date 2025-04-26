@@ -1,0 +1,106 @@
+name: Build probe stack
+
+on:
+  push:
+    tags:
+      - 'v*.*.*' # Trigger on version tags like v0.1.0, v1.0.0, etc.
+
+env:
+  # Use ghcr.io for GitHub Container Registry
+  REGISTRY: ghcr.io
+  # Use your GitHub username or organization name and repository name
+  IMAGE_NAME_BASE: ghcr.io/xrellana/vmstatus
+
+jobs:
+  build-and-push-agent:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write # Needed to push images to GHCR
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }} # Use the automatically generated GITHUB_TOKEN
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE_NAME_BASE }}/vps-metrics-agent
+
+      - name: Build and push Docker image for agent
+        uses: docker/build-push-action@v5
+        with:
+          context: ./vps-metrics-agent # Path to the agent's Dockerfile directory
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+  build-and-push-backend:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE_NAME_BASE }}/vps-status-backend
+
+      - name: Build and push Docker image for backend
+        uses: docker/build-push-action@v5
+        with:
+          context: ./vps-status-backend # Path to the backend's Dockerfile directory
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+  build-and-push-frontend:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE_NAME_BASE }}/vps-status-frontend
+
+      - name: Build and push Docker image for frontend
+        uses: docker/build-push-action@v5
+        with:
+          context: ./vps-status-frontend # Path to the frontend's Dockerfile directory
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
