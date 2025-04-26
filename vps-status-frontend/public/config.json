@@ -1,4 +1,4 @@
 {
-  "apiUrl": "http://localhost:3000/api/vps-status",
+  "apiUrl": "/api/vps-status",
   "refreshInterval": 30000
 }
