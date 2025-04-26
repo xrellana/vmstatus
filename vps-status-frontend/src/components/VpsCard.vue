@@ -146,7 +146,6 @@ const getProgressBarClass = (percent) => {
     <div class="flex justify-between items-start mb-3">
       <div class="flex-1 mr-2">
         <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100 truncate" :title="vps.name">{{ vps.name }}</h3>
-        {/* IP address display removed */}
       </div>
       <div class="flex items-center space-x-2">
          <span class="text-lg" :title="vps.location?.country + (vps.location?.city !== 'N/A' ? ', ' + vps.location?.city : '')">{{ locationDisplay }}</span>
