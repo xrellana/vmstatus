@@ -1,25 +1,34 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
 import VpsCard from './components/VpsCard.vue';
-import config from './config.js';
+import { loadConfig } from './config.js'; // Import the loadConfig function
 
 // Removed static sampleData definition
 
 const servers = ref([]);
-const isLoading = ref(true);
+const isLoading = ref(true); // Start as true until config and first fetch are done
 const error = ref(null);
-const apiUrl = config.apiUrl; // Use the API URL from config
+let apiUrl = ref(''); // Will be set after config loads
+let refreshInterval = ref(30000); // Default, will be updated from config
 let intervalId = null;
-const refreshInterval = config.refreshInterval; // Use the refresh interval from config
+let configLoaded = ref(false); // Track if config has loaded
 
 const fetchStatus = async () => {
+  if (!configLoaded.value) {
+    console.warn("Configuration not loaded yet, skipping fetch.");
+    return; // Don't fetch if config isn't ready
+  }
   // Don't set isLoading to true on subsequent fetches, only the initial one
-  // isLoading.value = true;
-  error.value = null;
-  console.log('Fetching VPS status...'); // Log fetching attempt
+  // isLoading.value = true; // isLoading is handled differently now
+  error.value = null; // Clear previous errors before fetching
+  console.log(`Fetching VPS status from ${apiUrl.value}...`); // Log fetching attempt with actual URL
 
   try {
-    const response = await fetch(apiUrl);
+    // Ensure apiUrl has a value before fetching
+    if (!apiUrl.value) {
+      throw new Error("API URL is not configured.");
+    }
+    const response = await fetch(apiUrl.value); // Use the reactive apiUrl
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
@@ -49,9 +58,44 @@ const fetchStatus = async () => {
   }
 };
 
-onMounted(() => {
-  fetchStatus(); // Fetch immediately on mount
-  intervalId = setInterval(fetchStatus, refreshInterval); // Fetch periodically
+onMounted(async () => {
+  isLoading.value = true; // Ensure loading is true initially
+  error.value = null; // Clear any previous errors
+  try {
+    const loadedConfig = await loadConfig(); // Load config first
+    apiUrl.value = loadedConfig.apiUrl;
+    refreshInterval.value = loadedConfig.refreshInterval;
+    configLoaded.value = true; // Mark config as loaded
+    console.log(`Configuration loaded: API URL = ${apiUrl.value}, Refresh Interval = ${refreshInterval.value}`);
+
+    await fetchStatus(); // Perform the initial fetch *after* config is loaded
+
+    // Set up the interval only after the first fetch is done and config is loaded
+    if (intervalId) clearInterval(intervalId); // Clear any potential previous interval
+    intervalId = setInterval(fetchStatus, refreshInterval.value); // Use the loaded interval
+
+  } catch (configError) {
+    // This catch is primarily for unexpected errors during loadConfig itself,
+    // though loadConfig internally handles fetch/parse errors and returns defaults.
+    console.error("Critical error during initial configuration loading:", configError);
+    error.value = `Failed to load application configuration: ${configError.message}. Using defaults.`;
+    // Attempt to proceed with defaults if loadConfig failed catastrophically
+    // (This might be redundant if loadConfig's internal catch always returns defaults)
+    const defaultConfig = await loadConfig(); // Re-attempt or get cached default promise
+    apiUrl.value = defaultConfig.apiUrl;
+    refreshInterval.value = defaultConfig.refreshInterval;
+    configLoaded.value = true; // Mark config as loaded even with defaults
+    await fetchStatus(); // Try fetching with defaults
+    if (intervalId) clearInterval(intervalId);
+    intervalId = setInterval(fetchStatus, refreshInterval.value);
+  } finally {
+     // isLoading is set to false inside fetchStatus's finally block
+     // We might need to reconsider if config load fails before first fetch
+     if (!servers.value.length && !error.value) {
+        // If config loaded but fetchStatus hasn't run or failed silently
+        // isLoading.value = false; // Ensure loading finishes if fetchStatus had issues
+     }
+  }
 });
 
 onUnmounted(() => {

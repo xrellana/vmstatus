@@ -1,22 +1,50 @@
 // Configuration file for the frontend application
-// This allows for different configurations in development and production environments
+// Loads configuration from /config.json at runtime
 
-// Get API URL from environment variables (set by Vite)
-// VITE_API_URL is defined in the .env file
-const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/vps-status';
-
-// Default configuration
-const config = {
-  // API URL from environment variables
-  apiUrl,
-  // Refresh interval in milliseconds
-  refreshInterval: 30000
+// Default configuration values (used as fallback if config.json fails to load)
+const defaultConfig = {
+  apiUrl: '/api/vps-status', // Default to a relative path, assuming proxy or same origin might be used
+  refreshInterval: 30000     // Default refresh interval: 30 seconds
 };
 
-// For backwards compatibility, still check if there's a global configuration object
-// that overrides the defaults (though we prefer using environment variables now)
-if (window.VPS_CONFIG) {
-  Object.assign(config, window.VPS_CONFIG);
+let configPromise = null;
+
+/**
+ * Loads configuration from /config.json.
+ * Fetches the file only once and caches the promise.
+ * Merges loaded config with defaults, preferring loaded values.
+ * Falls back to defaultConfig if fetching or parsing fails.
+ * @returns {Promise<object>} A promise that resolves with the final configuration object.
+ */
+function loadConfig() {
+  if (!configPromise) {
+    console.log('Attempting to load runtime configuration from /config.json...');
+    configPromise = fetch('/config.json')
+      .then(response => {
+        if (!response.ok) {
+          // Don't throw immediately, log and proceed to catch for fallback
+          console.error(`Failed to fetch /config.json: HTTP status ${response.status}`);
+          return Promise.reject(new Error(`HTTP error! status: ${response.status}`)); // Reject to trigger catch
+        }
+        return response.json(); // Attempt to parse JSON
+      })
+      .then(runtimeConfig => {
+        console.log('Runtime configuration loaded successfully:', runtimeConfig);
+        // Merge runtime config with defaults, runtime values take precedence
+        const finalConfig = { ...defaultConfig, ...runtimeConfig };
+        console.log('Final configuration:', finalConfig);
+        return finalConfig;
+      })
+      .catch(error => {
+        // Catches fetch errors (network, HTTP status) or JSON parsing errors
+        console.error('Error loading or parsing runtime configuration from /config.json:', error.message);
+        console.warn('Using default configuration as fallback.');
+        // Fallback to default config
+        return defaultConfig;
+      });
+  }
+  return configPromise;
 }
 
-export default config;
+// Export the function to load config
+export { loadConfig };
