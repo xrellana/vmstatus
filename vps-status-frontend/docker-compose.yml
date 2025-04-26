@@ -2,16 +2,14 @@ services:
   frontend:
     build:
       context: . # Build context is the current directory
-      args:
-        - VITE_API_URL=${VITE_API_URL:-http://server:3000/api/vps-status} # Default value if not provided
+      # VITE_API_URL will be read from the .env file during the build process inside Dockerfile
     container_name: vps-frontend-standalone # Unique name for standalone frontend
     ports:
       - "3001:3001" # Map host port 3001 to container port 3001
     restart: unless-stopped
-    environment:
-      - VITE_API_URL=${VITE_API_URL:-http://server:3000/api/vps-status} # Can be overridden when running docker-compose
-    # Note: You can override the API URL by setting the VITE_API_URL environment variable:
-    # VITE_API_URL=http://your-backend-url:3000/api/vps-status docker-compose up -d
+    # Environment variable is not needed at runtime as it's baked into the build
+    # Note: Ensure your .env file in this directory has the correct VITE_API_URL
+    # before running 'docker-compose build' or 'docker-compose up --build'.
 
 networks:
   default:

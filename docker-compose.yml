@@ -3,8 +3,9 @@ services:
     build:
       context: ./vps-metrics-agent # Path to the agent's Dockerfile directory
     container_name: vps-agent
+    ports:
+      - "9101:9101" # Expose agent port to host (optional, usually not needed for internal communication)
     restart: unless-stopped
-    # No ports needed to be exposed externally for the agent usually
 
   server:
     build:
@@ -23,14 +24,12 @@ services:
   frontend:
     build:
       context: ./vps-status-frontend # Path to the frontend's Dockerfile directory
-      args:
-        - VITE_API_URL=http://server:3000/api/vps-status # Use the Docker service name
+      # VITE_API_URL will be read from ./vps-status-frontend/.env during the build process
     container_name: vps-frontend
     ports:
       - "3001:3001" # Map host port 3001 to container port 3001
     restart: unless-stopped
-    environment:
-      - VITE_API_URL=http://server:3000/api/vps-status # Use the Docker service name
+    # Environment variable is not needed at runtime as it's baked into the build
     depends_on:
       - server # Ensures server starts before frontend
 
