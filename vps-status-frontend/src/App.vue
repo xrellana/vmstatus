@@ -1,15 +1,16 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
 import VpsCard from './components/VpsCard.vue';
+import config from './config.js';
 
 // Removed static sampleData definition
 
 const servers = ref([]);
 const isLoading = ref(true);
 const error = ref(null);
-const apiUrl = 'http://localhost:3000/api/vps-status'; // Backend API endpoint
+const apiUrl = config.apiUrl; // Use the API URL from config
 let intervalId = null;
-const refreshInterval = 30000; // Refresh every 30 seconds
+const refreshInterval = config.refreshInterval; // Use the refresh interval from config
 
 const fetchStatus = async () => {
   // Don't set isLoading to true on subsequent fetches, only the initial one

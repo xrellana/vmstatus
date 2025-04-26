@@ -19,6 +19,20 @@ services:
     # (e.g., 'http://agent:9101/metrics') instead of IP addresses for agents
     # running within the same Docker Compose network. This change is outside
     # the scope of creating the docker-compose file itself.
+  
+  frontend:
+    build:
+      context: ./vps-status-frontend # Path to the frontend's Dockerfile directory
+      args:
+        - VITE_API_URL=http://server:3000/api/vps-status # Use the Docker service name
+    container_name: vps-frontend
+    ports:
+      - "3001:3001" # Map host port 3001 to container port 3001
+    restart: unless-stopped
+    environment:
+      - VITE_API_URL=http://server:3000/api/vps-status # Use the Docker service name
+    depends_on:
+      - server # Ensures server starts before frontend
 
 networks:
   default:
