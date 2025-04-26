@@ -1,37 +1,31 @@
 services:
   agent:
     build:
-      context: ./vps-metrics-agent # Path to the agent's Dockerfile directory
+      context: ./vps-metrics-agent
     container_name: vps-agent
     ports:
-      - "9101:9101" # Expose agent port to host (optional, usually not needed for internal communication)
+      - "9101:9101"
     restart: unless-stopped
 
   server:
     build:
-      context: ./vps-status-backend # Path to the server's Dockerfile directory
+      context: ./vps-status-backend
     container_name: vps-backend
     ports:
-      - "3000:3000" # Map host port 3000 to container port 3000
+      - "3000:3000"
     restart: unless-stopped
     depends_on:
-      - agent # Optional: Ensures agent starts before server, though server logic handles agent unavailability
-    # Note: The server code needs to be updated to use the Docker service name
-    # (e.g., 'http://agent:9101/metrics') instead of IP addresses for agents
-    # running within the same Docker Compose network. This change is outside
-    # the scope of creating the docker-compose file itself.
+      - agent
   
   frontend:
     build:
-      context: ./vps-status-frontend # Path to the frontend's Dockerfile directory
-      # VITE_API_URL will be read from ./vps-status-frontend/.env during the build process
+      context: ./vps-status-frontend
     container_name: vps-frontend
     ports:
-      - "3001:3001" # Map host port 3001 to container port 3001
+      - "3001:3001"
     restart: unless-stopped
-    # Environment variable is not needed at runtime as it's baked into the build
     depends_on:
-      - server # Ensures server starts before frontend
+      - server
 
 networks:
   default:
