@@ -1,0 +1,4 @@
+{
+  "apiUrl": "/api/vps-status",
+  "refreshInterval": 30000
+}

@@ -134,3 +134,4 @@ dist
 # Project-specific ignores
 vps-status-backend/config.json
 vps-status-backend/sample_output
+vps-status-frontend/public/config.json
