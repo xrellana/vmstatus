@@ -12,55 +12,11 @@ const app = express();
 const port = 3000; // Or any port you prefer
 
 // --- CORS Configuration ---
-let allowedOrigins = [];
-const corsAllowedOriginsEnv = process.env.CORS_ALLOWED_ORIGINS;
-const primaryFrontendDomainEnv = process.env.PRIMARY_FRONTEND_DOMAIN;
-const viteDevOrigin = 'http://localhost:5173'; // Default Vite dev server origin
-
-if (corsAllowedOriginsEnv) {
-  // Priority 1: Use CORS_ALLOWED_ORIGINS if explicitly set
-  allowedOrigins = corsAllowedOriginsEnv.split(',').map(origin => origin.trim());
-  console.log('CORS Enabled using CORS_ALLOWED_ORIGINS:', allowedOrigins);
-} else if (primaryFrontendDomainEnv) {
-  // Priority 2: Use PRIMARY_FRONTEND_DOMAIN if set
-  const primaryOrigin = `https://${primaryFrontendDomainEnv.trim()}`;
-  allowedOrigins = [primaryOrigin];
-  // Automatically add Vite dev origin for convenience during development
-  if (process.env.NODE_ENV !== 'production' && allowedOrigins.indexOf(viteDevOrigin) === -1) {
-      allowedOrigins.push(viteDevOrigin);
-  }
-  console.log(`CORS Enabled using PRIMARY_FRONTEND_DOMAIN (${primaryFrontendDomainEnv}):`, allowedOrigins);
-} else {
-  // Fallback: No specific origins configured
-  console.warn('Neither CORS_ALLOWED_ORIGINS nor PRIMARY_FRONTEND_DOMAIN environment variables are set.');
-  // Allow Vite dev origin by default in non-production environments for easier setup
-  if (process.env.NODE_ENV !== 'production') {
-      allowedOrigins.push(viteDevOrigin);
-      console.warn(`Allowing default Vite origin for development: ${viteDevOrigin}`);
-  } else {
-      console.warn('CORS will block most cross-origin requests in production without configuration.');
-  }
-}
-
-const corsOptions = {
-  origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-
-    // Check if the request origin is in our allowed list
-    if (allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true); // Allow
-    } else {
-      console.warn(`CORS: Blocked origin: ${origin}`);
-      callback(new Error('Not allowed by CORS')); // Block
-    }
-  },
-  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', // Standard methods
-  credentials: true, // Allow cookies if needed in the future
-  optionsSuccessStatus: 204 // For preflight requests
-};
-
-app.use(cors(corsOptions)); // Use configured CORS options
+// Using default cors() middleware - allows all origins.
+// WARNING: This is generally not recommended for production if the API
+// should only be accessed by specific frontends.
+console.log('CORS Enabled: Allowing all origins.');
+app.use(cors());
 
 // --- Configuration ---
 let servers = []; // Initialize servers array
