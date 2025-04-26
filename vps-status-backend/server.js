@@ -137,7 +137,7 @@ async function updateVpsStatus() {
 
     return {
       name: server.name,
-      ip: server.ip,
+      // ip: server.ip, // Removed for security
       isOnline: isOnline,
       location: location,
       metrics: metrics, // Add metrics here
