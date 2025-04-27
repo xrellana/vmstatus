@@ -128,6 +128,11 @@ onUnmounted(() => {
       No server data found. Check backend configuration or API response.
     </div>
 
+    <!-- Footer -->
+    <footer class="mt-8 p-4 text-center text-gray-500 dark:text-gray-400 text-sm">
+      © 2025 meowoo.net
+    </footer>
+
   </div>
 </template>
 
