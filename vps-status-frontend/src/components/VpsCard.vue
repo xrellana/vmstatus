@@ -144,7 +144,7 @@ const getProgressBarClass = (percent) => {
   <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 border border-gray-200 dark:border-gray-700 flex flex-col justify-between min-h-[250px]">
     <!-- Header -->
     <div class="flex justify-between items-start mb-3">
-      <div class="flex-1 mr-2 min-w-0"> {/* Added min-w-0 here */}
+      <div class="flex-1 mr-2 min-w-0">
         <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100 truncate" :title="vps.name">{{ vps.name }}</h3>
       </div>
       <div class="flex items-center space-x-2">
