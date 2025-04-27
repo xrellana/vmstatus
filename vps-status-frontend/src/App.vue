@@ -133,7 +133,7 @@ onUnmounted(() => {
 
     <!-- Footer (stays at the bottom) -->
     <footer class="p-4 text-center text-gray-500 dark:text-gray-400 text-sm">
-      © 2025 VPS Status Monitor. All rights reserved.
+      © 2025 meowoo.net
     </footer>
   </div>
 </template>
