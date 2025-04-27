@@ -104,10 +104,12 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-4 sm:p-6">
-    <h1 class="text-2xl sm:text-3xl font-bold mb-6 text-center">阿坤精神状态</h1>
+  <div class="min-h-screen flex flex-col bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+    <!-- Main Content Area (grows to push footer down) -->
+    <div class="flex-grow p-4 sm:p-6">
+      <h1 class="text-2xl sm:text-3xl font-bold mb-6 text-center">阿坤精神状态</h1>
 
-    <!-- Loading State -->
+      <!-- Loading State -->
     <div v-if="isLoading" class="text-center text-gray-500 dark:text-gray-400">
       Loading server status...
     </div>
@@ -127,12 +129,12 @@ onUnmounted(() => {
     <div v-else-if="!isLoading && servers.length === 0" class="text-center text-gray-500 dark:text-gray-400">
       No server data found. Check backend configuration or API response.
     </div>
+    </div> <!-- End Main Content Area -->
 
-    <!-- Footer -->
-    <footer class="mt-8 p-4 text-center text-gray-500 dark:text-gray-400 text-sm">
-      © 2025 meowoo.net
+    <!-- Footer (stays at the bottom) -->
+    <footer class="p-4 text-center text-gray-500 dark:text-gray-400 text-sm">
+      © 2025 VPS Status Monitor. All rights reserved.
     </footer>
-
   </div>
 </template>
 
