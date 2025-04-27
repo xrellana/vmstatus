@@ -105,7 +105,7 @@ onUnmounted(() => {
 
 <template>
   <div class="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-4 sm:p-6">
-    <h1 class="text-2xl sm:text-3xl font-bold mb-6 text-center">VPS Status Dashboard</h1>
+    <h1 class="text-2xl sm:text-3xl font-bold mb-6 text-center">阿坤精神状态</h1>
 
     <!-- Loading State -->
     <div v-if="isLoading" class="text-center text-gray-500 dark:text-gray-400">
