@@ -141,7 +141,7 @@ const getProgressBarClass = (percent) => {
 </script>
 
 <template>
-  <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 border border-gray-200 dark:border-gray-700 flex flex-col justify-between min-h-[250px]">
+  <div class="vps-card-root bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 border border-gray-200 dark:border-gray-700 flex flex-col justify-between min-h-[250px]">
     <!-- Header -->
     <div class="flex justify-between items-start mb-3">
       <div class="flex-1 mr-2 min-w-0">
@@ -210,5 +210,19 @@ const getProgressBarClass = (percent) => {
 </template>
 
 <style scoped>
-/* Add any component-specific styles here if needed, though Tailwind should cover most */
+.vps-card-root {
+  background-image: url('/caixunkun.png');
+  background-repeat: no-repeat;
+  background-position: 80% 50%; /* center right */
+  background-size: contain;
+  position: relative; /* Context for z-indexing children */
+}
+
+/* Ensure content stays above the background image */
+.vps-card-root > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Add any other component-specific styles here if needed */
 </style>
