@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, computed } from 'vue'; // Import computed
 import VpsCard from './components/VpsCard.vue';
 import { loadConfig } from './config.js'; // Import the loadConfig function
 
@@ -101,16 +101,43 @@ onMounted(async () => {
 onUnmounted(() => {
   clearInterval(intervalId); // Clear interval when component is unmounted
 });
+
+// Computed properties for server counts
+const totalServers = computed(() => servers.value.length);
+const onlineServers = computed(() => servers.value.filter(s => s.isOnline).length);
+const offlineServers = computed(() => totalServers.value - onlineServers.value);
+
 </script>
 
 <template>
   <div class="min-h-screen flex flex-col bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
     <!-- Main Content Area (grows to push footer down) -->
     <div class="flex-grow p-4 sm:p-6">
-      <h1 class="text-2xl sm:text-3xl font-bold mb-6 text-center">阿坤精神状态</h1>
+      <!-- Header Row: Title and Status Cards -->
+      <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+        <h1 class="text-2xl sm:text-3xl font-bold">阿坤精神状态</h1>
+        <!-- Status Cards Container -->
+        <div class="flex flex-wrap justify-center sm:justify-end gap-2 sm:gap-4">
+          <!-- Total Card -->
+          <div class="bg-blue-100 dark:bg-blue-900 border border-blue-300 dark:border-blue-700 rounded-lg px-3 py-1.5 text-center min-w-[80px]">
+            <div class="text-xs text-blue-600 dark:text-blue-300 font-medium">Total</div>
+            <div class="text-lg font-bold text-blue-800 dark:text-blue-100">{{ totalServers }}</div>
+          </div>
+          <!-- Online Card -->
+          <div class="bg-green-100 dark:bg-green-900 border border-green-300 dark:border-green-700 rounded-lg px-3 py-1.5 text-center min-w-[80px]">
+            <div class="text-xs text-green-600 dark:text-green-300 font-medium">Online</div>
+            <div class="text-lg font-bold text-green-800 dark:text-green-100">{{ onlineServers }}</div>
+          </div>
+          <!-- Offline Card -->
+          <div class="bg-red-100 dark:bg-red-900 border border-red-300 dark:border-red-700 rounded-lg px-3 py-1.5 text-center min-w-[80px]">
+            <div class="text-xs text-red-600 dark:text-red-300 font-medium">Offline</div>
+            <div class="text-lg font-bold text-red-800 dark:text-red-100">{{ offlineServers }}</div>
+          </div>
+        </div>
+      </div>
 
       <!-- Loading State -->
-    <div v-if="isLoading" class="text-center text-gray-500 dark:text-gray-400">
+    <div v-if="isLoading" class="text-center text-gray-500 dark:text-gray-400 mt-4">
       Loading server status...
     </div>
 
