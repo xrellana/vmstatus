@@ -160,7 +160,7 @@ const offlineServers = computed(() => totalServers.value - onlineServers.value);
 
     <!-- Footer (stays at the bottom) -->
     <footer class="p-4 text-center text-gray-500 dark:text-gray-400 text-sm">
-      © 2025 meowoo.net
+      © 2025 meowoo.net | <a href="https://blog.meowoo.net" target="_blank" rel="noopener noreferrer" class="hover:underline">My Blog</a>
     </footer>
   </div>
 </template>
